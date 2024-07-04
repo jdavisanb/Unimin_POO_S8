@@ -1,0 +1,99 @@
+package dao;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+import model.Product;
+import util.DatabaseConnection;
+
+public class ProductDAOImpl implements ProductDAO {
+
+    
+    public void create(Product product) throws Exception {
+        String query = "INSERT INTO products (product_code, name, description, base_price, sale_price, category, available_quantity) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, product.getProductCode());
+            stmt.setString(2, product.getName());
+            stmt.setString(3, product.getDescription());
+            stmt.setDouble(4, product.getBasePrice());
+            stmt.setDouble(5, product.getSalePrice());
+            stmt.setString(6, product.getCategory());
+            stmt.setInt(7, product.getAvailableQuantity());
+            stmt.executeUpdate();
+        }
+    }
+
+   
+    public Product read(String productCode) throws Exception {
+        String query = "SELECT * FROM products WHERE product_code = ? AND is_deleted = FALSE";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, productCode);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return new Product(
+                            rs.getString("product_code"),
+                            rs.getString("name"),
+                            rs.getString("description"),
+                            rs.getDouble("base_price"),
+                            rs.getDouble("sale_price"),
+                            rs.getString("category"),
+                            rs.getInt("available_quantity"),
+                            rs.getBoolean("is_deleted")
+                    );
+                }
+            }
+        }
+        return null;
+    }
+
+    
+    public void update(Product product) throws Exception {
+        String query = "UPDATE products SET name = ?, description = ?, base_price = ?, sale_price = ?, category = ?, available_quantity = ? WHERE product_code = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, product.getName());
+            stmt.setString(2, product.getDescription());
+            stmt.setDouble(3, product.getBasePrice());
+            stmt.setDouble(4, product.getSalePrice());
+            stmt.setString(5, product.getCategory());
+            stmt.setInt(6, product.getAvailableQuantity());
+            stmt.setString(7, product.getProductCode());
+            stmt.executeUpdate();
+        }
+    }
+
+    
+    public void delete(String productCode) throws Exception {
+        String query = "UPDATE products SET is_deleted = TRUE WHERE product_code = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, productCode);
+            stmt.executeUpdate();
+        }
+    }
+
+    
+    public List<Product> getAll() throws Exception {
+        List<Product> products = new ArrayList<>();
+        String query = "SELECT * FROM products WHERE is_deleted = FALSE";
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+            while (rs.next()) {
+                products.add(new Product(
+                        rs.getString("product_code"),
+                        rs.getString("name"),
+                        rs.getString("description"),
+                        rs.getDouble("base_price"),
+                        rs.getDouble("sale_price"),
+                        rs.getString("category"),
+                        rs.getInt("available_quantity"),
+                        rs.getBoolean("is_deleted")
+                ));
+            }
+        }
+        return products;
+    }
+}
