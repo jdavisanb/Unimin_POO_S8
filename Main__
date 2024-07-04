@@ -1,0 +1,34 @@
+package main;
+
+import model.Product;
+import service.ProductService;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            ProductService productService = new ProductService();
+
+          
+            Product newProduct = new Product("P001", "Laptop", "High-end gaming laptop", 1000.00, 1200.00, "Computers", 10, false);
+            productService.addProduct(newProduct);
+
+            
+            Product product = productService.getProduct("P001");
+            System.out.println("Producto leído: " + product);
+
+            
+            product.setName("Gaming Laptop");
+            productService.updateProduct(product);
+
+            
+            for (Product p : productService.getAllProducts()) {
+                System.out.println(p);
+            }
+
+            
+            productService.deleteProduct("P001");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
