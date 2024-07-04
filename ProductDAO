@@ -1,0 +1,12 @@
+package dao;
+
+import java.util.List;
+import model.Product;
+
+public interface ProductDAO {
+    void create(Product product) throws Exception;
+    Product read(String productCode) throws Exception;
+    void update(Product product) throws Exception;
+    void delete(String productCode) throws Exception;
+    List<Product> getAll() throws Exception;
+}
